@@ -705,7 +705,20 @@ class Agent(Generic[Context]):
 		"""Get next action from LLM based on current state"""
 		input_messages = self._convert_input_messages(input_messages)
 
-		if self.tool_calling_method == 'raw':
+		# Special handling for OpenRouter/gemini models
+		if 'gemini' in str(self.model_name).lower() or str(self.model_name).startswith('gemini/'):
+			logger.info(f"Using special handling for OpenRouter/gemini model: {self.model_name}")
+			# Use raw mode for OpenRouter/gemini
+			output = self.llm.invoke(input_messages)
+			output.content = self._remove_think_tags(str(output.content))
+			try:
+				parsed_json = extract_json_from_model_output(output.content)
+				parsed = self.AgentOutput(**parsed_json)
+			except (ValueError, ValidationError) as e:
+				logger.warning(f'Failed to parse model output: {output} {str(e)}')
+				raise ValueError('Could not parse response.')
+
+		elif self.tool_calling_method == 'raw':
 			logger.debug(f'Using {self.tool_calling_method} for {self.chat_model_library}')
 			try:
 				output = self.llm.invoke(input_messages)

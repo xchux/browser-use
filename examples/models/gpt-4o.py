@@ -23,7 +23,7 @@ agent = Agent(
 
 
 async def main():
-	await agent.run(max_steps=10)
+	await agent.run(max_steps=10, max_failures=1,)
 	input('Press Enter to continue...')
 
 

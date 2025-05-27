@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import re
-from typing import Any
+from typing import Any, Optional
 
 from langchain_core.messages import (
 	AIMessage,
@@ -51,16 +51,33 @@ def extract_json_from_model_output(content: str) -> dict:
 		raise ValueError('Could not parse response.')
 
 
-def convert_input_messages(input_messages: list[BaseMessage], model_name: str | None) -> list[BaseMessage]:
+# def convert_input_messages(input_messages: list[BaseMessage], model_name: str | None) -> list[BaseMessage]:
+# 	"""Convert input messages to a format that is compatible with the planner model"""
+# 	if model_name is None:
+# 		return input_messages
+
+# 	if is_model_without_tool_support(model_name):
+# 		converted_input_messages = _convert_messages_for_non_function_calling_models(input_messages)
+# 		merged_input_messages = _merge_successive_messages(converted_input_messages, HumanMessage)
+# 		merged_input_messages = _merge_successive_messages(merged_input_messages, AIMessage)
+# 		return merged_input_messages
+# 	return input_messages
+
+def convert_input_messages(input_messages: list[BaseMessage], model_name: Optional[str]) -> list[BaseMessage]:
 	"""Convert input messages to a format that is compatible with the planner model"""
 	if model_name is None:
 		return input_messages
-
-	if is_model_without_tool_support(model_name):
+	# Handle deepseek models
+	if model_name == 'deepseek-reasoner' or model_name.startswith('deepseek-r1'):
 		converted_input_messages = _convert_messages_for_non_function_calling_models(input_messages)
 		merged_input_messages = _merge_successive_messages(converted_input_messages, HumanMessage)
 		merged_input_messages = _merge_successive_messages(merged_input_messages, AIMessage)
 		return merged_input_messages
+	# Handle OpenRouter/Gemini models
+	if 'gemini' in str(model_name).lower() or str(model_name).startswith('google/'): # or 'deepseek' in str(model_name).lower():
+		logger.info(f"Converting messages for OpenRouter model: {model_name}")
+		converted_input_messages = _convert_messages_for_non_function_calling_models(input_messages)
+		return converted_input_messages
 	return input_messages
 
 

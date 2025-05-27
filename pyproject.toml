@@ -19,8 +19,8 @@ dependencies = [
     "posthog>=3.7.0",
     "patchright>=1.51.0",
     "markdownify==1.1.0",
-    "langchain-core==0.3.49",
-    "langchain-openai==0.3.11",
+    "langchain-core==0.3.58",
+    "langchain-openai==0.3.16",
     "langchain-anthropic==0.3.3",
     "langchain-ollama==0.3.0",
     "langchain-google-genai==2.1.2",
@@ -38,6 +38,7 @@ dependencies = [
     "rich>=14.0.0",
     "click>=8.1.8",
     "textual>=3.2.0",
+    "langchain-community==0.3.23",
 ]
 # pydantic: >2.11 introduces many pydantic deprecation warnings until langchain-core upgrades their pydantic support lets keep it on 2.10
 # google-api-core: only used for Google LLM APIs
